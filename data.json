@@ -1,0 +1,16 @@
+[
+  {
+    "id": "758a9299-a5de-4919-a491-a1fd6e9770e2",
+    "description": "Buy Groceries",
+    "status": "todo",
+    "createdAt": 1779078333415,
+    "updatedAt": 1779078333415
+  },
+  {
+    "id": "edfa0f38-84f0-457d-8572-f4faad1c1ca6",
+    "description": "Unpack Groceries",
+    "status": "done",
+    "createdAt": 1779078355872,
+    "updatedAt": 1779078355872
+  }
+]

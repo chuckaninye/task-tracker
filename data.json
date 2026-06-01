@@ -1,16 +1,23 @@
 [
   {
-    "id": "758a9299-a5de-4919-a491-a1fd6e9770e2",
-    "description": "Buy Groceries",
+    "id": 1,
+    "description": "Buy groceries and cook dinner",
     "status": "todo",
-    "createdAt": 1779078333415,
-    "updatedAt": 1779078333415
+    "createdAt": "2026-06-01T19:38:16.423Z",
+    "updatedAt": "2026-06-01T19:39:37.331Z"
   },
   {
-    "id": "edfa0f38-84f0-457d-8572-f4faad1c1ca6",
-    "description": "Unpack Groceries",
+    "id": 2,
+    "description": "Unpack groceries",
+    "status": "in-progress",
+    "createdAt": "2026-06-01T19:38:46.859Z",
+    "updatedAt": "2026-06-01T19:40:07.320Z"
+  },
+  {
+    "id": 3,
+    "description": "Make diet plan",
     "status": "done",
-    "createdAt": 1779078355872,
-    "updatedAt": 1779078355872
+    "createdAt": "2026-06-01T19:38:57.079Z",
+    "updatedAt": "2026-06-01T19:40:17.655Z"
   }
 ]

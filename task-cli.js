@@ -1,90 +1,129 @@
-const { randomUUID } = require("crypto");
 const { writeFile, readFile } = require("fs");
 
-function addTask(task) {
-  const newTask = {
-    id: randomUUID(),
-    description: task,
-    status: "todo",
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
-
+function getTasks(callback) {
   readFile("data.json", (err, data) => {
-    if (err) {
-      const arr = [newTask];
-      writeFile("data.json", JSON.stringify(arr, null, 2), (err, data) => {});
+    let tasks = [];
+    if (!err) {
+      try {
+        tasks = JSON.parse(data);
+        if (!Array.isArray(tasks)) {
+          tasks = [];
+        }
+      } catch (e) {
+        tasks = [];
+      }
     }
 
-    try {
-      json = JSON.parse(data);
-    } catch (e) {
-      json = [];
-    }
-    if (!Array.isArray(json)) json = [json];
-
-    json.push(newTask);
-    writeFile("data.json", JSON.stringify(json, null, 2), (err, data) => {});
+    callback(tasks);
   });
 }
 
-function updateTask() {
-  console.log("update");
+function saveTasks(tasks) {
+  writeFile("data.json", JSON.stringify(tasks, null, 2), (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
 
-function deleteTask() {
-  console.log("delete");
+function addTask(description) {
+  getTasks((tasks) => {
+    const newTask = {
+      id: tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1,
+      description,
+      status: "todo",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    tasks.push(newTask);
+    saveTasks(tasks);
+    console.log(`Task added successfully (ID ${newTask.id})`);
+  });
 }
 
-function markTaskInProgress() {
-  console.log("in progress");
+function updateTask(id, description) {
+  getTasks((tasks) => {
+    const taskToUpdate = tasks.find((t) => t.id === id);
+    if (taskToUpdate) {
+      taskToUpdate.description = description;
+      taskToUpdate.updatedAt = new Date().toISOString();
+      saveTasks(tasks);
+      console.log(`Task (ID ${taskToUpdate.id}) successfully updated`);
+    } else {
+      console.log("No such task with the given id exists");
+    }
+  });
 }
 
-function markTaskDone() {
-  console.log("done");
+function deleteTask(id) {
+  getTasks((tasks) => {
+    const newTasks = tasks.filter((t) => t.id !== id);
+    saveTasks(newTasks);
+    console.log(`Task (ID ${id}) successfully deleted`);
+  });
+}
+
+function markTaskInProgress(id) {
+  getTasks((tasks) => {
+    const taskToMark = tasks.find((t) => t.id === id);
+    if (taskToMark) {
+      taskToMark.status = "in-progress";
+      taskToMark.updatedAt = new Date().toISOString();
+      saveTasks(tasks);
+      console.log(`Task (ID ${taskToMark.id}) successfully marked in progress`);
+    } else {
+      console.log("No such task with the given id exists");
+    }
+  });
+}
+
+function markTaskDone(id) {
+  getTasks((tasks) => {
+    const taskToMark = tasks.find((t) => t.id === id);
+    if (taskToMark) {
+      taskToMark.status = "done";
+      taskToMark.updatedAt = new Date().toISOString();
+      saveTasks(tasks);
+      console.log(`Task (ID ${taskToMark.id}) successfully marked as done`);
+    } else {
+      console.log("No such task with the given id exists");
+    }
+  });
 }
 
 function listTasks(status) {
   if (status) {
-    res = [];
-    readFile("data.json", (err, data) => {
-      try {
-        tasks = JSON.parse(data);
-        for (t of tasks) {
-          if (t.status === status) {
-            res.push(t);
-          }
-        }
-      } catch (e) {}
-
-      console.log(res);
+    getTasks((tasks) => {
+      console.log(tasks.filter((t) => t.status === status));
     });
   } else {
-    readFile("data.json", (err, data) => {
-      try {
-        json = JSON.parse(data);
-        console.log(json);
-      } catch (e) {
-        json = [];
-        console.log(json);
-      }
+    getTasks((tasks) => {
+      console.log(tasks);
     });
   }
 }
 
 const args = process.argv.slice(2);
-
-const commands = {
-  add: (arg) => addTask(arg),
-  update: () => updateTask(),
-  delete: () => deleteTask,
-  "mark-in-progress": () => markTaskInProgress(),
-  "mark-done": () => markTaskDone(),
-  list: (arg) => listTasks(arg),
-};
-
-if (args[0] in commands) {
-  commands[args[0]](args[1]);
-} else {
-  console.log("invalid command");
+switch (args[0]) {
+  case "add":
+    addTask(args[1]);
+    break;
+  case "update":
+    updateTask(Number(args[1]), args[2]);
+    break;
+  case "delete":
+    deleteTask(Number(args[1]));
+    break;
+  case "mark-in-progress":
+    markTaskInProgress(Number(args[1]));
+    break;
+  case "mark-done":
+    markTaskDone(Number(args[1]));
+    break;
+  case "list":
+    args.length > 1 ? listTasks(args[1]) : listTasks();
+    break;
+  default:
+    console.log("Invalid command");
 }
